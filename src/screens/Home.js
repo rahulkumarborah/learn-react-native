@@ -1,29 +1,30 @@
-import { FRONTEND_MASTERS, RAINBOW, SOLARIZED } from '../constants/colors';
 import { FlatList, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import PalettePreview from '../components/PalettePreview';
-import React from 'react';
-
-const COLOR_PALETTES = [
-  {
-    paletteName: 'Solarized',
-    colors: SOLARIZED,
-  },
-  {
-    paletteName: 'Frontend Masters',
-    colors: FRONTEND_MASTERS,
-  },
-  {
-    paletteName: 'Rainbow',
-    colors: RAINBOW,
-  },
-];
 
 const Home = ({ navigation }) => {
+  const [colorPalettes, setColorPalettes] = useState([]);
+
+  const fetchColorPalettes = useCallback(async () => {
+    const res = await fetch(
+      'https://color-palette-api.kadikraman.vercel.app/palettes',
+    );
+
+    if (res.ok) {
+      const data = await res.json();
+      setColorPalettes(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchColorPalettes();
+  }, [fetchColorPalettes]);
+
   return (
     <FlatList
       style={styles.list}
-      data={COLOR_PALETTES}
+      data={colorPalettes}
       keyExtractor={(item) => item.paletteName}
       renderItem={({ item }) => (
         <PalettePreview
