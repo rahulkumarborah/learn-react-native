@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import PalettePreview from '../components/PalettePreview';
@@ -43,6 +43,12 @@ const Home = ({ navigation }) => {
       )}
       refreshing={isRefreshing}
       onRefresh={handleRefresh}
+      ListHeaderComponent={
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ColorPaletteModal')}>
+          <Text>Launch Modal</Text>
+        </TouchableOpacity>
+      }
     />
   );
 };
