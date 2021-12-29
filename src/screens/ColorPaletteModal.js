@@ -1,6 +1,7 @@
 import {
   Alert,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -8,14 +9,19 @@ import {
 } from 'react-native';
 import React, { useCallback, useState } from 'react';
 
-const ColorPaletteModal = () => {
+const ColorPaletteModal = ({ navigation }) => {
   const [name, setName] = useState('');
 
   const handleSubmit = useCallback(() => {
     if (!name) {
       Alert.alert('Please enter a palette name');
     }
-  }, [name]);
+    const newColorPalette = {
+      paletteName: name,
+      colors: [],
+    };
+    navigation.navigate('Home', { newColorPalette });
+  }, [name, navigation]);
 
   return (
     <View style={styles.container}>
@@ -26,6 +32,10 @@ const ColorPaletteModal = () => {
         onChangeText={setName}
         placeholder="Palette name"
       />
+      <View style={styles.color}>
+        <Text>Color name</Text>
+        <Switch value={true} onValueChange={() => {}} />
+      </View>
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
@@ -59,6 +69,14 @@ const styles = StyleSheet.create({
   },
   name: {
     marginBottom: 10,
+  },
+  color: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'grey',
   },
 });
 
