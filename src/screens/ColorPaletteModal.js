@@ -1,5 +1,6 @@
 import {
   Alert,
+  FlatList,
   StyleSheet,
   Switch,
   Text,
@@ -9,19 +10,38 @@ import {
 } from 'react-native';
 import React, { useCallback, useState } from 'react';
 
+import { COLORS } from '../constants/colors';
+import ColorBox from '../components/ColorBox';
+
 const ColorPaletteModal = ({ navigation }) => {
   const [name, setName] = useState('');
+  const [selectedColors, setSelectedColors] = useState([]);
 
   const handleSubmit = useCallback(() => {
     if (!name) {
       Alert.alert('Please enter a palette name');
+    } else if (selectedColors.length < 3) {
+      Alert.alert('Please select at least three colors');
+    } else {
+      const newColorPalette = {
+        paletteName: name,
+        colors: selectedColors,
+      };
+      navigation.navigate('Home', { newColorPalette });
     }
-    const newColorPalette = {
-      paletteName: name,
-      colors: [],
-    };
-    navigation.navigate('Home', { newColorPalette });
-  }, [name, navigation]);
+  }, [name, navigation, selectedColors]);
+
+  const handleSwitchValue = useCallback((value, color) => {
+    if (value) {
+      setSelectedColors((colors) => [...colors, color]);
+    } else {
+      setSelectedColors((colors) =>
+        colors.filter(
+          (selectedColor) => selectedColor.colorName !== color.colorName,
+        ),
+      );
+    }
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -32,10 +52,28 @@ const ColorPaletteModal = ({ navigation }) => {
         onChangeText={setName}
         placeholder="Palette name"
       />
-      <View style={styles.color}>
-        <Text>Color name</Text>
-        <Switch value={true} onValueChange={() => {}} />
-      </View>
+      <FlatList
+        data={COLORS}
+        keyExtractor={(item) => item.colorName}
+        renderItem={({ item }) => (
+          <View style={styles.color}>
+            <Text>{item.colorName}</Text>
+            <View style={styles.colorPreview}>
+              <ColorBox hexCode={item.hexCode} boxStyle={styles.colorBox} />
+              <Switch
+                value={
+                  !!selectedColors.find(
+                    (color) => color.colorName === item.colorName,
+                  )
+                }
+                onValueChange={(selected) => {
+                  handleSwitchValue(selected, item);
+                }}
+              />
+            </View>
+          </View>
+        )}
+      />
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit</Text>
       </TouchableOpacity>
@@ -49,7 +87,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 5,
-    marginBottom: 30,
+    marginBottom: 10,
   },
   container: {
     padding: 10,
@@ -77,6 +115,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'grey',
+  },
+  colorPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  colorBox: {
+    marginRight: 20,
   },
 });
 
