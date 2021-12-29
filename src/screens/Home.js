@@ -5,6 +5,7 @@ import PalettePreview from '../components/PalettePreview';
 
 const Home = ({ navigation }) => {
   const [colorPalettes, setColorPalettes] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchColorPalettes = useCallback(async () => {
     const res = await fetch(
@@ -16,6 +17,12 @@ const Home = ({ navigation }) => {
       setColorPalettes(data);
     }
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await fetchColorPalettes();
+    setIsRefreshing(false);
+  }, [fetchColorPalettes]);
 
   useEffect(() => {
     fetchColorPalettes();
@@ -34,6 +41,8 @@ const Home = ({ navigation }) => {
           palette={item}
         />
       )}
+      refreshing={isRefreshing}
+      onRefresh={handleRefresh}
     />
   );
 };
